@@ -1,0 +1,6 @@
+gitpython>=3.1
+numpy>=1.26
+pandas>=2.1.1
+fpzip>=1.2.2
+cooler>=0.9.3
+bitstream>=3.0.1
