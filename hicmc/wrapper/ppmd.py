@@ -3,7 +3,8 @@ import subprocess
 import tempfile
 from enum import Enum
 
-from library import constants, utils
+from .. import utils
+from .. import constants as consts
 
 
 MIN_MODEL_ORDER = 2
@@ -14,7 +15,7 @@ _raw_file_name = 'raw.temp'
 _out_file_name = 'out.temp'
 
 
-_seven_zip_executable_path = os.path.join(constants.third_party_directory_path, 'szip-x64', '7zz')
+_seven_zip_executable_path = os.path.join(consts.THIRD_PARTY_PATH, 'szip-x64', '7zz')
 utils.check_executable(_seven_zip_executable_path)
 
 

@@ -1,13 +1,19 @@
+##
+# @author Yeremia G. Adhisantoso <adhisant@tnt.uni-hannover.de>
+# @file Description
+# @copyright Institute fuer Informationsverarbeitung
+
 import os
 import numpy as np
 import fpzip
-# from scipy.spatial.distance import pdist, squareform
 from . import typing as t
 from . import constants as consts
 from . import statistics as stats
 from . import masking
 from . import serializer
 from . import transform
+# from . import modeler
+from . import domain
 from .wrapper import jbig, ppmd
 
 def _gen_dist_mat(
@@ -41,7 +47,7 @@ def encode_chromosome(
     distance_table_precision:int
 ):
 
-    # Generate distance-matrix
+    #? Generate distance-matrix
     n = contact_mat.shape[0]
     dist_mat = _gen_dist_mat(n)
 
@@ -82,52 +88,65 @@ def encode_chromosome(
     # TODO: Add boundaries at mask-transition
     boundaries = np.argwhere(boundary_mask).reshape(-1)
 
-    # Generate domain-mask
+    #? Generate domain-mask
     domain_mask = stats.map_domains(
         balanced_contact_mat, 
         boundaries, 
         stat_f
     ) > domain_mask_threshold
 
-    # Encode domain-mask using JBIG
-    _temp = transform.transform_diagonal(domain_mask)
+    #? Encode domain-mask using JBIG
+    _temp = transform.transform_diagonal_mode0(domain_mask)
     _payload = jbig.encode_binary_matrix(_temp)
     with open(os.path.join(output_path, 'domain-mask.jbig'), 'wb') as file:
         file.write(_payload)
 
-    # Build domain-model
-    domain_values, distance_table = _build_model(balanced_contact_mat, dist_mat, boundaries, numpy.average, domain_mask)
+    #? Build domain-model
+    domain_values, distance_table = domain.build_model(
+        balanced_contact_mat, 
+        dist_mat, 
+        boundaries, 
+        stats.STATISTIC_FUNCS['average'], 
+        domain_mask
+    )
 
-    # Save domain-values using fpZIP
+    #? Save domain-values using fpZIP
     _payload = fpzip.compress(domain_values, precision=domain_values_precision)
     with open(os.path.join(output_path, 'domain-values.fpizp'), 'wb') as file:
         file.write(_payload)
 
-    # Reload domain-values (because of lossy compression)
-    domain_values = numpy.reshape(fpzip.decompress(_payload), -1)
+    #? Reload domain-values (because of lossy compression)
+    domain_values = np.reshape(fpzip.decompress(_payload), -1)
 
-    # Save distance-table
+    #? Save distance-table
     _payload = fpzip.compress(distance_table, precision=distance_table_precision)
     with open(os.path.join(output_path, 'distance-table.fpizp'), 'wb') as file:
         file.write(_payload)
 
-    # Reload distance-table (because of lossy compression)
-    distance_table = numpy.reshape(fpzip.decompress(_payload), -1)
+    #? Reload distance-table (because of lossy compression)
+    distance_table = np.reshape(fpzip.decompress(_payload), -1)
 
-    # Reconstruct model
-    model = _reconstruct_model(dist_mat, boundaries, domain_mask, domain_values, distance_table)
-    model = balance.deply(model, weights)
+    #? Reconstruct model
+    model = domain.reconstruct_model(
+        dist_mat, 
+        boundaries, 
+        domain_mask, 
+        domain_values, 
+        distance_table
+    )
+    model = transform.revert_balanced_matrix(model, weights)
 
-    # Transform original contact-matrix
+    #? Transform original contact-matrix
     contact_mat = transform.transform_argsort(contact_mat, model)
     contact_mask, contact_data = transform.transform_split(contact_mat)
 
-    # Save contact-mask
+    #? Save contact-mask
     _payload = jbig.encode_binary_matrix(contact_mask)
     with open(os.path.join(output_path, 'contact-mask.jbig'), 'wb') as file:
         file.write(_payload)
 
-    # Save contact-data
-    _payload = ppmd.encode_bytes(contact_data.tobytes(), model_order=contact_data.dtype.itemsize * 2)
+    #? Save contact-data
+    bytes_per_val = contact_data.dtype.itemsize
+    _payload = ppmd.encode_bytes(contact_data.tobytes(), model_order=bytes_per_val*2)
     with open(os.path.join(output_path, 'contact-data.ppmd'), 'wb') as file:
         file.write(_payload)

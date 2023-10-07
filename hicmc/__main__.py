@@ -35,7 +35,7 @@ parser.add_argument('input_file', type=str, help='input file path (.cool or .mco
 parser.add_argument('resolution', type=int)
 parser.add_argument('output_directory', type=str)
 
-def main(args):
+def encode(args):
     format_string = '[' + consts.PROGRAM_NAME + '] [%(asctime)s] [%(levelname)-8s] --- [%(processName)-11s] [%(filename)15s] [%(funcName)20s] %(message)s'
     log.basicConfig(format=format_string, level=log.INFO)
 
@@ -52,6 +52,8 @@ def main(args):
     domain_values_precision,  = args.domain_values_precision, 
     distance_table_precision = args.distance_table_precision
     balancing_name = args.balancing
+    
+    log.info(f'Encoding {input_file}')
 
     #? Load cooler file
     store = cooler.Cooler(os.path.normpath(args.input_file) + f'::/resolutions/{args.resolution}')
@@ -77,9 +79,7 @@ def main(args):
     for chr_idx in range(len(store.chromnames)):
         chr_name = store.chromnames[chr_idx]
 
-        log.info(
-            f'Processing chromosome {chr_name} - {res}kb - {input_file}'
-        )
+        log.info(f'Processing chromosome {chr_name} at {res}kb')
         chr_dpath = os.path.join(output_directory_path, f'{chr_idx:02}-{chr_idx:02}')
         if not os.path.exists(chr_dpath):
             os.makedirs(chr_dpath)
@@ -115,7 +115,7 @@ def main(args):
         boundary_mask = domain.select_boundaries(
             insulation_df,
             chr_name,
-            args.insulation_window
+            ins_win
         )
 
         log.info(f'Encoding contact matrix...')
@@ -132,4 +132,4 @@ def main(args):
         )
 
 if __name__ == '__main__':
-    main(parser.parse_args())
+    encode(parser.parse_args())

@@ -6,13 +6,15 @@ from enum import IntFlag
 import numpy
 from PIL import Image
 
-from library import constants, utils
+# from library import constants, utils
+from .. import utils
+from .. import constants as consts
 
 
 Image.MAX_IMAGE_PIXELS = numpy.inf
 
 
-_pbmtools_path = os.path.join(constants.third_party_directory_path, 'jbigkit-2.1', 'pbmtools')
+_pbmtools_path = os.path.join(consts.THIRD_PARTY_PATH, 'jbigkit-2.1', 'pbmtools')
 
 
 _pbmtojbg_path = os.path.join(_pbmtools_path, "pbmtojbg85")

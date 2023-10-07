@@ -1,3 +1,8 @@
+##
+# @author Yeremia G. Adhisantoso <adhisant@tnt.uni-hannover.de>
+# @file Description
+# @copyright Institute fuer Informationsverarbeitung
+
 import numpy as np
 from . import typing as t
 from . import constants as consts

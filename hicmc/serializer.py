@@ -1,11 +1,14 @@
+##
+# @author Yeremia G. Adhisantoso <adhisant@tnt.uni-hannover.de>
+# @file Description
+# @copyright Institute fuer Informationsverarbeitung
+
 import bitstream
 import numpy
 from bitstream import BitStream
 from numpy.typing import NDArray
 import math
-# from library import transform
 from . import transform
-
 
 class uint(object):
     def __init__(self, bits):

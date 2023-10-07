@@ -1,8 +1,11 @@
+##
+# @author Yeremia G. Adhisantoso <adhisant@tnt.uni-hannover.de>
+# @file Description
+# @copyright Institute fuer Informationsverarbeitung
+
 import math
 import numpy as np
-# from numpy.typing import NDArray
 from . import typing as t
-from . import utils
 
 def sparsity(array: t.NDArray) -> float:
     density = np.count_nonzero(array) / math.prod(array.shape)
@@ -41,8 +44,8 @@ def map_domains(
     #? Check input-type
     n = assert_square(contact_mat, return_n=True)
 
-    num_domains_per_axis = len(boundaries) + 1
-    domain_mat_shape = (num_domains_per_axis, num_domains_per_axis)
+    ndomains = len(boundaries) + 1
+    domain_mat_shape = (ndomains, ndomains)
     domain_mat = np.zeros(domain_mat_shape, dtype=np.floating)
 
     #? Iterate over all domain-indices in the upper-triangle (because contact-matrix is symmetric)
