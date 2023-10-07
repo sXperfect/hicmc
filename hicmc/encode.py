@@ -4,7 +4,11 @@
 # @copyright Institute fuer Informationsverarbeitung
 
 import os
+import json
+import shutil
+import logging as log
 import numpy as np
+import cooler
 import fpzip
 from . import typing as t
 from . import constants as consts
@@ -12,28 +16,9 @@ from . import statistics as stats
 from . import masking
 from . import serializer
 from . import transform
-# from . import modeler
 from . import domain
+from .decode import decode_chromosome
 from .wrapper import jbig, ppmd
-
-def _gen_dist_mat(
-    n:int
-) -> t.NDArray[np.integer]:
-
-    dist_mat_shape = (n, n)
-    dist_mat_dtype = np.min_scalar_type(n - 1)
-    dist_mat:t.NDArray[np.integer] = np.zeros(
-        dist_mat_shape,
-        dtype=dist_mat_dtype
-    )
-
-    for index in range(n):
-        dist_mat[index, :] = index
-
-    dist_mat = stats.cumshift_cols(dist_mat, 1)
-    dist_mat = np.tril(dist_mat) + np.transpose(np.tril(dist_mat, -1))
-
-    return dist_mat
 
 def encode_chromosome(
     output_path: str,
@@ -49,7 +34,7 @@ def encode_chromosome(
 
     #? Generate distance-matrix
     n = contact_mat.shape[0]
-    dist_mat = _gen_dist_mat(n)
+    dist_mat = transform.gen_dist_mat(n)
 
     #? Apply row-masking
     contact_mat, mask = masking.mask_axis(contact_mat, consts.Axis.ROW)
@@ -102,7 +87,7 @@ def encode_chromosome(
         file.write(_payload)
 
     #? Build domain-model
-    domain_values, distance_table = domain.build_model(
+    domain_values, dist_table = domain.build_model(
         balanced_contact_mat, 
         dist_mat, 
         boundaries, 
@@ -119,12 +104,12 @@ def encode_chromosome(
     domain_values = np.reshape(fpzip.decompress(_payload), -1)
 
     #? Save distance-table
-    _payload = fpzip.compress(distance_table, precision=distance_table_precision)
+    _payload = fpzip.compress(dist_table, precision=distance_table_precision)
     with open(os.path.join(output_path, 'distance-table.fpizp'), 'wb') as file:
         file.write(_payload)
 
     #? Reload distance-table (because of lossy compression)
-    distance_table = np.reshape(fpzip.decompress(_payload), -1)
+    dist_table = np.reshape(fpzip.decompress(_payload), -1)
 
     #? Reconstruct model
     model = domain.reconstruct_model(
@@ -132,7 +117,7 @@ def encode_chromosome(
         boundaries, 
         domain_mask, 
         domain_values, 
-        distance_table
+        dist_table
     )
     model = transform.revert_balanced_matrix(model, weights)
 
@@ -150,3 +135,115 @@ def encode_chromosome(
     _payload = ppmd.encode_bytes(contact_data.tobytes(), model_order=bytes_per_val*2)
     with open(os.path.join(output_path, 'contact-data.ppmd'), 'wb') as file:
         file.write(_payload)
+        
+def encode(args):    
+    overwrite = args.overwrite
+    res = args.resolution
+    input_file = args.input_file
+    ins_win = args.insulation_window
+    stat_name = args.domain_mask_statistic
+    stat_f = stats.STATISTIC_FUNCS[stat_name]
+    domain_mask_threshold, = args.domain_mask_threshold,
+    weights_precision,  = args.weights_precision, 
+    domain_values_precision,  = args.domain_values_precision, 
+    distance_table_precision = args.distance_table_precision
+    balancing_name = args.balancing
+    
+    log.info(f'Encoding {input_file}')
+
+    #? Load cooler file
+    store = cooler.Cooler(os.path.normpath(input_file) + f'::/resolutions/{res}')
+    matrix_selector = store.matrix(balance=False)
+    balancing_selector = store.bins()
+    chr_names = store.chromnames
+
+    #? Setup output-directory
+    output_dpath = os.path.normpath(args.output_directory)
+    if not os.path.exists(output_dpath):
+        os.makedirs(output_dpath)
+    else:
+        if overwrite:
+            shutil.rmtree(output_dpath)
+            os.makedirs(output_dpath)
+            
+    meta_fpath = os.path.join(output_dpath, 'chr_names.json')
+    meta_dict = {
+        'res': res,
+        'chr_names': chr_names
+    }
+    with open(meta_fpath, 'w') as f:
+        json.dump(meta_dict, f, indent=4)
+
+    #? Load insulation-table
+    insulation_df = domain.load_insulation_table(args.insulation_file)
+    if str(ins_win) not in insulation_df.columns:
+        raise ValueError(
+            f'Invalid insulation windows: {ins_win}. ' +  
+            f'Available: {list(insulation_df.columns[3:])}'
+        )
+    insulation_rec = insulation_df.iloc[0]
+    assert insulation_rec.end - insulation_rec.start == res, "Invalid insulation file for given resolution!"
+
+    #? Iterate over all chromosomes, TODO: Add argument to select chromosome
+    for chr_idx in range(len(chr_names)):
+        chr_name = chr_names[chr_idx]
+
+        log.info(f'Processing chromosome {chr_name} at {res}kb')
+        chr_dpath = os.path.join(output_dpath, f'{chr_idx:02}-{chr_idx:02}')
+        if not os.path.exists(chr_dpath):
+            os.makedirs(chr_dpath)
+
+        else:
+            if len(os.listdir(chr_dpath)) == 8:
+                log.info(f'Chromosome already processed!')
+                continue
+
+        #? Fetch contact-matrix from selector
+        log.info(f'Fetching contact matrix...')
+        contact_mat = matrix_selector.fetch(chr_name)
+        contact_mat = contact_mat.astype(np.min_scalar_type(contact_mat.max()))
+        stats.assert_square(contact_mat)
+
+        #? Fetch balancing-weights from selector
+        log.info(f'Fetching balancing weights...')
+        balancing_weights = balancing_selector.fetch(chr_name)
+        try:
+            weights = balancing_weights[balancing_name]
+        except:
+            ValueError(f'Cannot found the balancing method: {balancing_name}')
+
+        if consts.WEIGHTS_PRECISION_DEFAULT == 32:
+            weights = weights.astype(np.float32)
+        elif consts.WEIGHTS_PRECISION_DEFAULT == 64:
+            weights = weights.astype(np.float64)
+        else:
+            raise ValueError(consts.WEIGHTS_PRECISION_DEFAULT)
+
+        #? Load insulation boundaries for this chromosome
+        log.info(f'Loading TAD boundaries...')
+        boundary_mask = domain.select_boundaries(
+            insulation_df,
+            chr_name,
+            ins_win
+        )
+
+        log.info(f'Encoding contact matrix...')
+        encode_chromosome(
+            chr_dpath, 
+            contact_mat, 
+            weights, 
+            boundary_mask,
+            stat_f, 
+            domain_mask_threshold,
+            weights_precision, 
+            domain_values_precision, 
+            distance_table_precision
+        )
+        
+        if args.check_result:
+            recon_contact_mat = decode_chromosome(
+                chr_dpath
+            )
+            
+            assert np.array_equal(contact_mat, recon_contact_mat), \
+                "Decoded contact matrix differ from the original contact matrix"

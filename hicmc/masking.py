@@ -14,7 +14,7 @@ def mask_axis(
 
 	assert axis in [consts.Axis.ROW, consts.Axis.COL], "Invalid axis!"
 	mask = ~np.any(mat, axis=axis.other.value)
- 
+
 	if axis is consts.Axis.ROW:
 		mat = mat[~mask, :]
 	elif axis is consts.Axis.COL:
@@ -25,32 +25,21 @@ def mask_axis(
 	return mat, mask
 
 def unmask_axis(
-    matrix:t.NDArray,
+    mat:t.NDArray,
     axis: consts.Axis,
     mask: t.NDArray
 ) -> t.NDArray:
 
-	nrows, ncols = matrix.shape
+	nrows, ncols = mat.shape
 	if axis is consts.Axis.ROW:
-		_out = np.zeros((len(mask), ncols), dtype=matrix.dtype)
-		matrix_row = 0
-		for index in range(len(mask)):
-			if mask[index]:
-				continue
+		out_mat = np.zeros((len(mask), ncols), dtype=mat.dtype)
+		out_mat[~mask, :] = mat
 
-			_out[index, :] = matrix[matrix_row, :]
-			matrix_row += 1
+	elif axis is consts.Axis.COL:
+		out_mat = np.zeros((nrows, len(mask)), dtype=mat.dtype)
+		out_mat[:, ~mask] = mat
 
-		return _out
+	else:
+		raise ValueError("Invalid axis:{axis}")
 
-	if axis is t.Axis.Col:
-		_out = np.zeros((nrows, len(mask)), dtype=matrix.dtype)
-		matrix_col = 0
-		for index in range(len(mask)):
-			if mask[index]:
-				continue
-
-			_out[:, index] = matrix[:, matrix_col]
-			matrix_col += 1
-
-		return _out
+	return out_mat

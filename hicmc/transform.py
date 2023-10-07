@@ -7,6 +7,25 @@ import numpy as np
 from . import typing as t
 from . import statistics as stats
 
+def gen_dist_mat(
+    n:int
+) -> t.NDArray[np.integer]:
+
+    dist_mat_shape = (n, n)
+    dist_mat_dtype = np.min_scalar_type(n - 1)
+    dist_mat:t.NDArray[np.integer] = np.zeros(
+        dist_mat_shape,
+        dtype=dist_mat_dtype
+    )
+
+    for index in range(n):
+        dist_mat[index, :] = index
+
+    dist_mat = stats.cumshift_cols(dist_mat, 1)
+    dist_mat = np.tril(dist_mat) + np.transpose(np.tril(dist_mat, -1))
+
+    return dist_mat
+
 def make_mat_symmetrical(mat, check=False):
     if not check or not np.diag(mat, -1).any():
         mat = np.triu(mat) + np.triu(mat, 1).T
