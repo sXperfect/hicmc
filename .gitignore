@@ -1,6 +1,8 @@
 tmp
 data
 .vscode
+third-party/jbigkit-2.1/
+third-party/szip-x64/
 
 # ---> Python
 # Byte-compiled / optimized / DLL files
