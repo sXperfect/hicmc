@@ -1,7 +1,9 @@
+cython>=3.0.3
 gitpython>=3.1
-numpy>=1.26
+numpy>=1.25
 pandas>=2.1.1
 fpzip>=1.2.2
 cooler>=0.9.3
 bitstream>=3.0.1
 Pillow>=10.0.01
+cooltools==0.5.4
