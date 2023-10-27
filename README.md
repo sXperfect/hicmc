@@ -1,11 +1,41 @@
 # High-Efficiency Contact Matrix Compressor (HiCMC)
 
-Open Source High-Efficiency Contact Matrix
+This is the open-source software **HiCMC**.
+Through sophisticated biological modeling we enable highly efficient compression of Hi-C contact matrices.
+
+## Quick start
+
+For a smooth quick start, we provide a test file that can be downloaded and extracted as follows:
+
+```shell
+wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/quickstart-data.tar.gz
+tar -xvzf quickstart-data.tar.gz
+```
+
+Then, clone the repository:
+
+```shell
+git clone https://github.com/sXperfect/hicmc
+```
+
+Run setup script `setup.sh`:
+
+```shell
+bash setup.sh
+```
+
+Encode the data with **HiCMC**:
+
+```shell
+$input_file="quickstart-data.cool"
+$resolution=50
+$output_directory="quickstart_output"
+HiCMC ENCODE ${input_file} ${resolution} ${output_directory}
+```
 
 ## Usage policy
----
 
-The open source HiCMC codec is made available before scientific publication.
+The open-source HiCMC codec is made available before scientific publication.
 
 This pre-publication software is preliminary and may contain errors.
 The software is provided in good faith, but without any express or implied warranties.
@@ -15,14 +45,12 @@ The goal of our policy is that early release should enable the progress of scien
 We kindly ask to refrain from publishing analyses that were conducted using this software while its development is in progress.
 
 ## Dependencies
----
 
-Python version 3.8 or later is required.
-For anaconda or conda user, CMAKE, gcc and gxx libraries are required and can be installed through: `conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64`.
-See [requirements.txt](requirements.txt) for the list of required python libraries.
+Python 3.8 or later is required.
+For conda users, `cmake`, `gcc` and `gxx` libraries are required and can be installed through: `conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64`.
+See [requirements.txt](requirements.txt) for the list of required Python libraries.
 
 ## Building
----
 
 Clone this repository:
 
@@ -35,7 +63,6 @@ Run setup script `setup.sh`
 This step will install and compile all dependencies automatically.
 
 ## Usage
----
 
 Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
 Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
