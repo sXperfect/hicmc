@@ -5,23 +5,43 @@ Through sophisticated biological modeling we enable highly efficient compression
 
 ## Quick start
 
-For a smooth quick start, we provide a test file that can be downloaded and extracted as follows:
+For a smooth quick start, we provide a test file that can be downloaded and extracted.
+We have tested this software on `Ubuntu` operating system with `conda` software.
 
-```shell
-wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/quickstart-data.tar.gz
-tar -xvzf quickstart-data.tar.gz
-```
-
-Then, clone the repository:
+First, clone the repository and enter the directory:
 
 ```shell
 git clone https://github.com/sXperfect/hicmc
+cd hicmc
+```
+
+Create a virtual environment using `conda` and install necessary libraries
+```shell
+conda create -y -n hicmc python=3.11
+conda activate hicmc
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
+
+Install cython and python libraries
+```shell
+pip install -r requirements.txt
+pip install --pre bitstream
 ```
 
 Run setup script `setup.sh`:
 
 ```shell
 bash setup.sh
+```
+
+First, download the necessary input file from `Gene Expression Omnibus` with accession code `GSE63525` of filename ``:
+```bash
+wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525%5FGM12878%5Finsitu%5Fprimary%2Ehic
+```
+
+```shell
+wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/quickstart-data.tar.gz
+tar -xvzf quickstart-data.tar.gz
 ```
 
 Encode the data with **HiCMC**:
@@ -46,8 +66,12 @@ We kindly ask to refrain from publishing analyses that were conducted using this
 
 ## Dependencies
 
-Python 3.8 or later is required.
-For conda users, `cmake`, `gcc` and `gxx` libraries are required and can be installed through: `conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64`.
+Python 3.8 or higher is required.
+It is recommended that you create a virtual environment using conda.
+For conda users, the `cmake`, `gcc`, `zlib`, `curl`, and `gxx` libraries are required and can be installed through this link:
+```shell
+conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
 See [requirements.txt](requirements.txt) for the list of required Python libraries.
 
 ## Building
@@ -56,9 +80,26 @@ Clone this repository:
 
     git clone https://github.com/sXperfect/hicmc
 
+Create a virtual environment using conda
+```shell
+conda create -n hicmc python=3.8
+```
+
+Install necessary libraries
+```shell
+conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
+
+Install python libraries
+```shell
+python -m pip install -r requirements.txt
+```
+
 Run setup script `setup.sh`
 
-    bash setup.sh
+```shell
+bash setup.sh
+```
 
 This step will install and compile all dependencies automatically.
 
