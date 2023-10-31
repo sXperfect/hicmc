@@ -1,14 +1,10 @@
 numpy
 cython
 gitpython>=3.1
-#numpy>=1.24
 pandas>=2.0.3
 fpzip>=1.2.2
 cooler>=0.9.3
-# bitstream>=3.0.1
-# bitstreamk
 Pillow>=10.0.01
 plotly==5.17.0
-# hicexplorer
 hic2cool
 cooltools

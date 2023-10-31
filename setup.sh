@@ -10,16 +10,9 @@ readonly jbig_directory="${third_party_directory}/jbigkit-2.1"
     rm -rf jbigkit-2.1
     tar xzvf jbigkit-2.1.tar.gz
     cd "${jbig_directory}"
-    make -j
+    cd libjbig && make && cd ..
+    cd pbmtools && make
 )
-
-# readonly bsc_directory="${third_party_directory}/bsc-3.2.4"
-# (
-#     unzip bsc-3.2.4-src.zip -d ${bsc_directory}
-#     cd ${bsc_directory}
-#     make install PREFIX="./build"
-#     make clean
-# )
 
 #? 7zip
 readonly szip_directory="${third_party_directory}/szip-x64"

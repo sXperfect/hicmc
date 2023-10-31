@@ -22,36 +22,47 @@ conda activate hicmc
 conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 ```
 
-Install cython and python libraries
+Install python libraries
 ```shell
 pip install -r requirements.txt
 pip install --pre bitstream
 ```
+***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
+Future versions of `bitstream` may not require installation with the `--pre` option.
 
 Run setup script `setup.sh`:
-
 ```shell
 bash setup.sh
 ```
 
-First, download the necessary input file from `Gene Expression Omnibus` with accession code `GSE63525` of filename ``:
-```bash
+Create data folder and download domain information data based on Insulation score:
+```shell
+mkdir -p data && cd data
+wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/domain_info.tar.gz 
+tar xzvf domain_info.tar.gz
+```
+***Note:*** Insulation score can be computed using [cooltools](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html)
+
+Download `hic` data from GEO:
+```shell
 wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525%5FGM12878%5Finsitu%5Fprimary%2Ehic
 ```
 
+Convert `hic` data to `mcool`:
 ```shell
-wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/quickstart-data.tar.gz
-tar -xvzf quickstart-data.tar.gz
+hic2cool convert GSE63525_GM12878_insitu_primary.hic GSE63525_GM12878_insitu_primary.cool
 ```
 
-Encode the data with **HiCMC**:
-
-```shell
-$input_file="quickstart-data.cool"
-$resolution=50
-$output_directory="quickstart_output"
-HiCMC ENCODE ${input_file} ${resolution} ${output_directory}
+Go back to the root directory
 ```
+cd ..
+```
+
+Encode the `mcool` data at `250kb` with **HiCMC**:
+```shell
+python -m hicmc ENCODE --insulation-file data/GM12828-insitu_primary/250000/insulation.tsv --insulation-window 1000000 --weights-precision 12 --domain-values-precision 18 --distance-table-precision 10 --domain-mask-threshold 45 --balancing KR data/GSE63525_GM12878_insitu_primary.mcool 250000 results/GM12878-insitu_primary-250kb
+```
+***Note:*** The value of `--insulation-window` is a multiplication of the resolution. In the paper we mention the multiplier value instead of the exact window size value.
 
 ## Usage policy
 
@@ -68,10 +79,12 @@ We kindly ask to refrain from publishing analyses that were conducted using this
 
 Python 3.8 or higher is required.
 It is recommended that you create a virtual environment using conda.
-For conda users, the `cmake`, `gcc`, `zlib`, `curl`, and `gxx` libraries are required and can be installed through this link:
+For conda users, the `cmake`, `gcc`, `zlib`, `curl`, and `gxx` libraries are required and can be installed through:
+
 ```shell
-conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 ```
+
 See [requirements.txt](requirements.txt) for the list of required Python libraries.
 
 ## Building
@@ -92,8 +105,11 @@ conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 
 Install python libraries
 ```shell
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
+pip install --pre bitstream
 ```
+***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
+Future versions of `bitstream` may not require installation with the `--pre` option.
 
 Run setup script `setup.sh`
 
@@ -108,16 +124,21 @@ This step will install and compile all dependencies automatically.
 Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
 Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
 
+Our tool accept `mcool` data as the input.
+For `hic` data, transcoding to `mcool` is necessary using `hic2cool` tool:
+```shell
+hic2cool convert <hic_file> <mcool_file>
+```
+
+
 Compress a cooler file with a specific resolution
 ```bash
-usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION]
-                    [--balancing BALANCING]
-                    input_file resolution output_directory
+usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION] [--balancing BALANCING] input_file resolution output_directory
 
 positional arguments:
-  input_file            input file path (.cool or .mcool)
-  resolution
-  output_directory
+  input_file            Input file path (.cool or .mcool)
+  resolution            Resolution
+  output_directory      Path to the encoded bitstream directory
 
 options:
   -h, --help            show this help message and exit
@@ -134,6 +155,7 @@ options:
   --balancing BALANCING
                         Select a balancing method, default: KR
 ```
+***Note:*** The value of `--insulation-window` is a multiplication of the resolution.
 
 Decompress HiCMC encoded payload
 ```bash
