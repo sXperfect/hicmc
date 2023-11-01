@@ -25,6 +25,7 @@ conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 Install python libraries
 ```shell
 pip install -r requirements.txt
+pip install hic2cool cooltools
 pip install --pre bitstream
 ```
 ***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
@@ -95,17 +96,18 @@ Clone this repository:
 
 Create a virtual environment using conda
 ```shell
-conda create -n hicmc python=3.8
+conda create -y -n hicmc python=3.11
 ```
 
 Install necessary libraries
 ```shell
-conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 ```
 
 Install python libraries
 ```shell
 pip install -r requirements.txt
+pip install hic2cool cooltools
 pip install --pre bitstream
 ```
 ***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
