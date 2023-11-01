@@ -121,17 +121,18 @@ This step will install and compile all dependencies automatically.
 
 ## Usage
 
-Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
-Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
-
+### Input file
 Our tool accept `mcool` data as the input.
 For `hic` data, transcoding to `mcool` is necessary using `hic2cool` tool:
 ```shell
 hic2cool convert <hic_file> <mcool_file>
 ```
 
+### Preprocessing
+Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
+Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
 
-Compress a cooler file with a specific resolution
+Encode a cooler file with a specific resolution
 ```bash
 usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION] [--balancing BALANCING] input_file resolution output_directory
 
@@ -157,12 +158,12 @@ options:
 ```
 ***Note:*** The value of `--insulation-window` is a multiplication of the resolution.
 
-Decompress HiCMC encoded payload
+Decode HiCMC payload
 ```bash
 usage: HiCMC DECODE [-h] input output
 
 positional arguments:
-  input       Path to the HiCMC encoded payload
+  input       Path to the HiCMC payload
   output      Output directory
 
 options:
