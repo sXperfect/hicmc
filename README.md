@@ -134,14 +134,24 @@ hic2cool convert <hic_file> <mcool_file>
 Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
 Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
 
-Encode a cooler file with a specific resolution
+### Running
+To run our tools, please use the following command on the directory:
+```shell
+python -m hicmc <mode>
+```
+where `mode` is either `ENCODE` or `DECODE`.
+Use `--help` to show help.
+
+**ENCODE** Compress a cooler file with a specific resolution
 ```bash
-usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION] [--balancing BALANCING] input_file resolution output_directory
+usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION]
+                    [--balancing BALANCING]
+                    input_file resolution output_directory
 
 positional arguments:
-  input_file            Input file path (.cool or .mcool)
-  resolution            Resolution
-  output_directory      Path to the encoded bitstream directory
+  input_file            input file path (.cool or .mcool)
+  resolution
+  output_directory
 
 options:
   -h, --help            show this help message and exit
@@ -158,14 +168,13 @@ options:
   --balancing BALANCING
                         Select a balancing method, default: KR
 ```
-***Note:*** The value of `--insulation-window` is a multiplication of the resolution.
 
-Decode HiCMC payload
+**DECODE** Decompress HiCMC encoded payload
 ```bash
 usage: HiCMC DECODE [-h] input output
 
 positional arguments:
-  input       Path to the HiCMC payload
+  input       Path to the HiCMC encoded payload
   output      Output directory
 
 options:
