@@ -5,33 +5,65 @@ Through sophisticated biological modeling we enable highly efficient compression
 
 ## Quick start
 
-For a smooth quick start, we provide a test file that can be downloaded and extracted as follows:
+For a smooth quick start, we provide a test file that can be downloaded and extracted.
+We have tested this software on `Ubuntu` operating system with `conda` software.
 
-```shell
-wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/quickstart-data.tar.gz
-tar -xvzf quickstart-data.tar.gz
-```
-
-Then, clone the repository:
+First, clone the repository and enter the directory:
 
 ```shell
 git clone https://github.com/sXperfect/hicmc
+cd hicmc
 ```
 
-Run setup script `setup.sh`:
+Create a virtual environment using `conda` and install necessary libraries
+```shell
+conda create -y -n hicmc python=3.11
+conda activate hicmc
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
 
+Install python libraries
+```shell
+pip install -r requirements.txt
+pip install hic2cool cooltools
+pip install --pre bitstream
+```
+***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
+Future versions of `bitstream` may not require installation with the `--pre` option.
+
+Run setup script `setup.sh`:
 ```shell
 bash setup.sh
 ```
 
-Encode the data with **HiCMC**:
-
+Create data folder and download domain information data based on Insulation score:
 ```shell
-$input_file="quickstart-data.cool"
-$resolution=50
-$output_directory="quickstart_output"
-HiCMC ENCODE ${input_file} ${resolution} ${output_directory}
+mkdir -p data && cd data
+wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/domain_info.tar.gz 
+tar xzvf domain_info.tar.gz
 ```
+***Note:*** Insulation score can be computed using [cooltools](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html)
+
+Download `hic` data from GEO:
+```shell
+wget https://ftp.ncbi.nlm.nih.gov/geo/series/GSE63nnn/GSE63525/suppl/GSE63525%5FGM12878%5Finsitu%5Fprimary%2Ehic
+```
+
+Convert `hic` data to `mcool`:
+```shell
+hic2cool convert GSE63525_GM12878_insitu_primary.hic GSE63525_GM12878_insitu_primary.cool
+```
+
+Go back to the root directory
+```
+cd ..
+```
+
+Encode the `mcool` data at `250kb` with **HiCMC**:
+```shell
+python -m hicmc ENCODE --insulation-file data/GM12828-insitu_primary/250000/insulation.tsv --insulation-window 1000000 --weights-precision 12 --domain-values-precision 18 --distance-table-precision 10 --domain-mask-threshold 45 --balancing KR data/GSE63525_GM12878_insitu_primary.mcool 250000 results/GM12878-insitu_primary-250kb
+```
+***Note:*** The value of `--insulation-window` is a multiplication of the resolution. In the paper we mention the multiplier value instead of the exact window size value.
 
 ## Usage policy
 
@@ -46,8 +78,14 @@ We kindly ask to refrain from publishing analyses that were conducted using this
 
 ## Dependencies
 
-Python 3.8 or later is required.
-For conda users, `cmake`, `gcc` and `gxx` libraries are required and can be installed through: `conda install -c conda-forge cmake gxx_linux-64 gcc_linux-64`.
+Python 3.8 or higher is required.
+It is recommended that you create a virtual environment using conda.
+For conda users, the `cmake`, `gcc`, `zlib`, `curl`, and `gxx` libraries are required and can be installed through:
+
+```shell
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
+
 See [requirements.txt](requirements.txt) for the list of required Python libraries.
 
 ## Building
@@ -56,18 +94,55 @@ Clone this repository:
 
     git clone https://github.com/sXperfect/hicmc
 
+Create a virtual environment using conda
+```shell
+conda create -y -n hicmc python=3.11
+```
+
+Install necessary libraries
+```shell
+conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
+```
+
+Install python libraries
+```shell
+pip install -r requirements.txt
+pip install hic2cool cooltools
+pip install --pre bitstream
+```
+***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
+Future versions of `bitstream` may not require installation with the `--pre` option.
+
 Run setup script `setup.sh`
 
-    bash setup.sh
+```shell
+bash setup.sh
+```
 
 This step will install and compile all dependencies automatically.
 
 ## Usage
 
+### Input file
+Our tool accept `mcool` data as the input.
+For `hic` data, transcoding to `mcool` is necessary using `hic2cool` tool:
+```shell
+hic2cool convert <hic_file> <mcool_file>
+```
+
+### Preprocessing
 Before encoding with our tools, a domain information based on a TAD caller (in this case Insulation score) is required.
 Please refer to this [link](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html) on how to generate the domain file.
 
-Compress a cooler file with a specific resolution
+### Running
+To run our tools, please use the following command on the directory:
+```shell
+python -m hicmc <mode>
+```
+where `mode` is either `ENCODE` or `DECODE`.
+Use `--help` to show help.
+
+**ENCODE** Compress a cooler file with a specific resolution
 ```bash
 usage: HiCMC ENCODE [-h] [--check-result] [--insulation-file INSULATION_FILE] [--insulation-window INSULATION_WINDOW] [--weights-precision WEIGHTS_PRECISION] [--domain-mask-statistic {average,sparsity,deviation}] [--domain-mask-threshold DOMAIN_MASK_THRESHOLD] [--domain-values-precision DOMAIN_VALUES_PRECISION] [--distance-table-precision DISTANCE_TABLE_PRECISION]
                     [--balancing BALANCING]
@@ -94,7 +169,7 @@ options:
                         Select a balancing method, default: KR
 ```
 
-Decompress HiCMC encoded payload
+**DECODE** Decompress HiCMC encoded payload
 ```bash
 usage: HiCMC DECODE [-h] input output
 
