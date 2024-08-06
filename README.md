@@ -147,3 +147,29 @@ positional arguments:
 options:
   -h, --help  show this help message and exit
 ```
+
+## Relevant data to reproduce the experiment
+
+Dataset
+       
+| Accession Number | Cell-line | Filename |
+| -----| ----- | ----- |
+| GSE63525 | CH12 | GSE63525_CH12-LX_combined.hic |
+| GSE63525 | GM12878 (Insitu-DpnII) |  GSE63525_GM12878_insitu_DpnII_combined.hic |
+| GSE63525 | GM12878 (Primary) | GSE63525_GM12878_insitu_primary.hic |
+| GSE63525 | GM12878 (Replicate) | GSE63525_GM12878_insitu_replicate.hic |
+| GSE63525 | HMEC | GSE63525_HMEC_combined.hic |
+| GSE63525 | HUVEC | GSE63525_HUVEC_combined.hic |
+| GSE63525 | IMR90 | GSE63525_IMR90_combined.hic |
+| GSE63525 | K562 | GSE63525_K562_combined.hic |
+| GSE63525 | KBM7 |  GSE63525_KBM7_combined.hic |
+| GSE63525 | NHMEK |  GSE63525_NHEK_combined.hic |
+
+
+## Contact
+
+Yeremia Gunawan Adhisantoso <[adhisant@tnt.uni-hannover.de](mailto:adhisant@tnt.uni-hannover.de)>
+
+Fabian Müntefering <[muenteferi@tnt.uni-hannover.de](mailto:muenteferi@tnt.uni-hannover.de)>
+
+Jan Voges <[voges@tnt.uni-hannover.de](mailto:voges@tnt.uni-hannover.de)>
