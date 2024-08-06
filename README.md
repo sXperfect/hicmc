@@ -88,39 +88,6 @@ conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
 
 See [requirements.txt](requirements.txt) for the list of required Python libraries.
 
-## Building
-
-Clone this repository:
-
-    git clone https://github.com/sXperfect/hicmc
-
-Create a virtual environment using conda
-```shell
-conda create -y -n hicmc python=3.11
-```
-
-Install necessary libraries
-```shell
-conda install -y -c conda-forge cmake gxx_linux-64 gcc_linux-64 zlib curl
-```
-
-Install python libraries
-```shell
-pip install -r requirements.txt
-pip install hic2cool cooltools
-pip install --pre bitstream
-```
-***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
-Future versions of `bitstream` may not require installation with the `--pre` option.
-
-Run setup script `setup.sh`
-
-```shell
-bash setup.sh
-```
-
-This step will install and compile all dependencies automatically.
-
 ## Usage
 
 ### Input file
