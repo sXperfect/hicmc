@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(
     description=consts.PROGRAM_DESC,
 )
 parser.add_argument('-l', '--log_level', help='log level', choices=consts.AVAIL_LOG_LEVELS.keys(), default='info')
+parser.add_argument('--dry-run', action='store_true')
 parser.add_argument('--overwrite', action='store_true')
 subparsers = parser.add_subparsers(dest='mode', help='Mde, either ENCODE or DECODE')
 

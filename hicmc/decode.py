@@ -101,17 +101,19 @@ def decode_chromosome(
 def decode(args):
     
     overwrite = args.overwrite
+    dry_run = args.dry_run
     input_dpath = args.input
     output_dpath = args.output
     
     #? Setup output-directory
     output_dpath = os.path.normpath(output_dpath)
-    if not os.path.exists(output_dpath):
-        os.makedirs(output_dpath)
-    else:
-        if overwrite:
-            shutil.rmtree(output_dpath)
+    if not dry_run:
+        if not os.path.exists(output_dpath):
             os.makedirs(output_dpath)
+        else:
+            if overwrite:
+                shutil.rmtree(output_dpath)
+                os.makedirs(output_dpath)
     
     meta_fpath = os.path.join(input_dpath, 'chr_names.json')
     with open(meta_fpath, 'r') as f:
@@ -127,19 +129,20 @@ def decode(args):
         
         contact_mat = decode_chromosome(chr_dpath)
         
-        triu_contact_mat = np.triu(contact_mat)
-        row_ids, col_ids = np.where(triu_contact_mat)
-        
-        df = pd.DataFrame(
-            data={
-                'row_ids':row_ids, 
-                'col_ids':col_ids, 
-                'counts':triu_contact_mat[row_ids, col_ids]
-            }
-        )
-        
-        out_csv_fpath = os.path.join(output_dpath, f'{chr_idx:02}-{chr_idx:02}.csv')
-        df.to_csv(
-            out_csv_fpath,
-            index=False
-        )
+        if not dry_run:
+            triu_contact_mat = np.triu(contact_mat)
+            row_ids, col_ids = np.where(triu_contact_mat)
+            
+            df = pd.DataFrame(
+                data={
+                    'row_ids':row_ids, 
+                    'col_ids':col_ids, 
+                    'counts':triu_contact_mat[row_ids, col_ids]
+                }
+            )
+            
+            out_csv_fpath = os.path.join(output_dpath, f'{chr_idx:02}-{chr_idx:02}.csv')
+            df.to_csv(
+                out_csv_fpath,
+                index=False
+            )

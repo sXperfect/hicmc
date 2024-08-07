@@ -148,9 +148,12 @@ options:
   -h, --help  show this help message and exit
 ```
 
-## Relevant data to reproduce the experiment
+## Limitation
 
-Dataset
+Currently HiCMC supports only cooler as input file.
+This can be extended by integrating parsers or readers for other formats, especially for the hic format using straw.
+
+## Relevant data to reproduce the experiment
        
 | Accession Number | Cell-line | Filename |
 | -----| ----- | ----- |

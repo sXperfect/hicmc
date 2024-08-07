@@ -3,7 +3,8 @@ data
 .vscode
 third-party/jbigkit-2.1/
 third-party/szip-x64/
-notebooks/
+notebooks
+scripts/
 
 # ---> Python
 # Byte-compiled / optimized / DLL files
