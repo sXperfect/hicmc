@@ -28,7 +28,7 @@ pip install -r requirements.txt
 pip install hic2cool cooltools
 pip install --pre bitstream
 ```
-***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release. 
+***Note:*** At the time of writing, the `bitstream` library has a bug that is fixed in the pre-release.
 Future versions of `bitstream` may not require installation with the `--pre` option.
 
 Run setup script `setup.sh`:
@@ -39,7 +39,7 @@ bash setup.sh
 Create data folder and download domain information data based on Insulation score:
 ```shell
 mkdir -p data && cd data
-wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/domain_info.tar.gz 
+wget https://www.tnt.uni-hannover.de/staff/adhisant/hicmc/domain_info.tar.gz
 tar xzvf domain_info.tar.gz
 ```
 ***Note:*** Insulation score can be computed using [cooltools](https://cooltools.readthedocs.io/en/latest/notebooks/insulation_and_boundaries.html)
@@ -53,6 +53,8 @@ Convert `hic` data to `mcool`:
 ```shell
 hic2cool convert GSE63525_GM12878_insitu_primary.hic GSE63525_GM12878_insitu_primary.cool
 ```
+
+***Note:*** This step is necessary because HiCMC currently only supports cooler as input file. This can be extended by integrating parsers or readers for other formats, especially for the hic format using straw.
 
 Go back to the root directory
 ```
@@ -154,8 +156,10 @@ Currently HiCMC supports only cooler as input file.
 This can be extended by integrating parsers or readers for other formats, especially for the hic format using straw.
 
 ## Relevant data to reproduce the experiment
-       
-| Accession Number | Cell-line | Filename |
+
+The data can be dowloaded from [NCBI](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE63525).
+
+| NCBI Accession Number | Cell line | Filename |
 | -----| ----- | ----- |
 | GSE63525 | CH12 | GSE63525_CH12-LX_combined.hic |
 | GSE63525 | GM12878 (Insitu-DpnII) |  GSE63525_GM12878_insitu_DpnII_combined.hic |
