@@ -18,11 +18,21 @@ def _insulation_windows(table: pd.DataFrame) -> t.List[int]:
 
 def load_insulation_table(file_path: str):
     #? Load data-frame
-    df = pd.read_csv(
-        file_path,
-        delimiter='\t',
-        dtype=dict(chrom=str, region=str)
-    )
+    
+    if file_path.endswith('tsv'):
+        df = pd.read_csv(
+            file_path,
+            delimiter='\t',
+            dtype=dict(chrom=str, region=str)
+        )
+    elif file_path.endswith('csv'):
+        df = pd.read_csv(
+            file_path,
+            dtype=dict(chrom=str, region=str)
+        )
+    else:
+        raise ValueError("Invalid format!")
+    
     windows = _insulation_windows(df)
 
     #? Only load necessary columns

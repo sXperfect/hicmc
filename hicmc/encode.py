@@ -141,6 +141,7 @@ def encode(args):
     res = args.resolution
     input_file = args.input_file
     ins_win = args.insulation_window
+    ins_win_mult = args.insulation_window_mult
     stat_name = args.domain_mask_statistic
     stat_f = stats.STATISTIC_FUNCS[stat_name]
     domain_mask_threshold, = args.domain_mask_threshold,
@@ -175,6 +176,9 @@ def encode(args):
         json.dump(meta_dict, f, indent=4)
 
     #? Load insulation-table
+    if ins_win_mult is not None:
+        ins_win = ins_win_mult * res
+    
     insulation_df = domain.load_insulation_table(args.insulation_file)
     if str(ins_win) not in insulation_df.columns:
         raise ValueError(
